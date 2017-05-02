@@ -1,6 +1,6 @@
 # ![](https://ga-dash.s3.amazonaws.com/production/assets/logo-9f88ae6c9c3871690e33280fcf557f33.png) Project 4: Logistic Regression and Job Search Sites
 
-![](jobhunting.jpg)
+![](images/jobhunting.jpg)
 
 ### Description
 
@@ -55,10 +55,4 @@ Your job is to:
 1. We'll be utilizing a dataset derived from live web data: [Indeed.com](https://www.indeed.com)
 
 ---
-
-
-
-### Project Feedback + Evaluation
-
-[Attached here is a complete rubric for this project.](./project-04-rubric.md)
 
