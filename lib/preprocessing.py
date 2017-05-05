@@ -4,6 +4,16 @@ import re
 
 
 def clean_salary(row):
+    """
+       Converts string salary or salary range to average salary in integer.
+       
+       Arguments:
+       
+           row: pandas apply method       
+       
+       Returns converted row
+    
+    """
     
     row = row.replace(',','')
     if 'year' in row:
@@ -16,6 +26,16 @@ def clean_salary(row):
 
 
 def clean_text(row):
+    """
+       Converts text to raw text with no punctuations or numbers.
+       
+       Arguments:
+       
+           row: pandas apply method       
+       
+       Returns converted row
+    
+    """
     
     regex = re.compile("[^a-zA-Z.']")
     row = row.encode("utf8").lower()
@@ -28,12 +48,25 @@ def clean_text(row):
 
 
 def standardize(row):
+    """
+       Standardize text variations: 'post doc'|'postdoctoral'|'post doctoral' -> 'phd',
+                                    'sr' -> 'senior', 'jr' -> 'junior', 'svp' -> 'senior vp',
+                                    'ai' -> 'artificial intelligence', 'ml' -> 'machine learning',
+                                    'vice president' -> 'vp'
+       
+       Arguments:
+       
+           row: pandas apply method       
+       
+       Returns converted row
+    
+    """
     
     row = row.replace(r'post doc', 'phd').replace(r'postdoctoral', 'phd').replace(r'post doctoral', 'phd')
     row = row.replace(r'sr','senior').replace(r'jr','junior').replace(r'ai','artificial intelligence')
-    row = row.replace(r'ml','machine learning')
-    row = row.replace(r'svp','senior vp')
-    row = row.replace(r'vice president ','vp')
+    row = row.replace(r'ml','machine learning').replace(r'scientists','scientist')
+    row = row.replace(r'svp','senior vp').replace(r'analytics','analytic')
+    row = row.replace(r'vice president','vp').replace(r'analysts','analyst')
 
     return row
 
@@ -42,6 +75,16 @@ correct_city = {"Dania Beach": "Miami Suburb", "Silver Spring": "Washington Subu
 
 
 def map_city(row):
+    """
+       Maps suburban cities to city.
+       
+       Arguments:
+       
+           row: pandas apply method       
+       
+       Returns converted row
+    
+    """
     city = row['city']
 
     if city in correct_city.keys():
@@ -50,7 +93,17 @@ def map_city(row):
     else:
         return city
     
-def f(row):
+def suburban_vs_city(row):
+    """
+       Convert suburban vs city into binary.
+       
+       Arguments:
+       
+           row: pandas apply method       
+       
+       Returns converted row
+    
+    """
     if 'Suburb' in row:
         if len(row.split()) > 2:
             row = row.split()[0] + ' ' + row.split()[1]
@@ -62,7 +115,18 @@ def f(row):
 
 
 def extract_keywords_into_dummies(df, col, *words):
+    """
+       Extracts words from text and converts into binary.
+       
+       Arguments:
+       
+           df: pandas DataFrame
+           col: specific column
+           words: string of words
+       
+       Returns DataFrame with all carigorical dummies
     
+    """   
     col = df[col]
     for word in words:
         df[word] = pd.get_dummies(col.str.extract('({})'.format(word), expand=False))
@@ -71,7 +135,17 @@ def extract_keywords_into_dummies(df, col, *words):
     
 
 def is_keyword_in_title_or_summary(row, words=[]):
+    """
+       Extracts words from summary and title column and converts into binary.
+       
+       Arguments:
+       
+           row: pandas apply method
+           words: string of words
+       
+       Returns binary
     
+    """   
     summary = row['summary']
     title = row['title']
 

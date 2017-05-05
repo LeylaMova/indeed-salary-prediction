@@ -7,10 +7,20 @@ from bs4 import BeautifulSoup
 
 
 url = "http://www.indeed.com/jobs?q=data+scientist+%2420%2C000&l={}&start={}"
+#url = "http://www.indeed.com/jobs?q=data+scientist+%24160000&l={}&start={}"
+
 
 def extract_posts(max_results_per_city, cities=[]):
     """
-       Extract the city, state, company, salary, summary and title from posts on indeed and return in a DataFrame. max_results_per_city is accepts integer and cities accepts a list of cities.
+       Extracts city, state, company, salary, summary and title from posts on indeed.
+       
+       Arguments:
+       
+           max_results_per_city:  integer 
+           cities: list of strings
+       
+       
+       Returns a Pandas DataFrame 
     
     """
     
@@ -43,7 +53,15 @@ def extract_posts(max_results_per_city, cities=[]):
 
 def extract_posts_wo_salary(max_results_per_city, cities=[]):
     """
-       Extract the city, state, company, summary and title from posts on indeed and return in a DataFrame. max_results_per_city is accepts integer and cities accepts a list of cities.
+       Extracts city, state, company, summary and title from posts on indeed.
+       
+       Arguments:
+       
+           max_results_per_city:  integer 
+           cities: list of strings
+       
+       
+       Returns a Pandas DataFrame 
     
     """
     

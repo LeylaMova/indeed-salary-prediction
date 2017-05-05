@@ -1,4 +1,4 @@
-# ![](https://ga-dash.s3.amazonaws.com/production/assets/logo-9f88ae6c9c3871690e33280fcf557f33.png) Project 4: Logistic Regression and Job Search Sites
+# ![](https://ga-dash.s3.amazonaws.com/production/assets/logo-9f88ae6c9c3871690e33280fcf557f33.png) Project 4: Predicting Salary Range with Classifiers
 
 ![](images/jobhunting.jpg)
 
@@ -12,9 +12,9 @@ Aggregators like [Indeed.com](https://www.indeed.com) regularly pool job posting
 
 #### Project Summary
 
-In this project, we are going to collect salary information on data science jobs in a variety of markets. Then using the location, title, and summary of the job, we will attempt to predict a corresponding salary for that job. While most listings DO NOT come with salary information (as you will see in this exercise), being to able extrapolate or predict the expected salaries for other listings will be extremely useful for negotiations :)
+In this project, we are going to collect salary information on data science jobs in a variety of markets. Then using the location, title, and summary of the job, we will attempt to predict a corresponding salary for that job. While most listings DO NOT come with salary information (as you will see in this exercise), being able to extrapolate or predict the expected salaries for other listings will be extremely useful for negotiations :)
 
-Normally we could use regression for this task; however, instead we will convert this into a classification problem and use Logistic Regression.
+Normally we could use regression for this task; however, instead we will convert this into a classification problem and use best Classifier Model.
 
 - **Question**: Why would we want this to be a classification problem?
 - **Answer**: While more precision may be better, there is a fair amount of natural variance in job salaries; therefore, predicting a range be may be useful.
@@ -41,18 +41,3 @@ Your job is to:
 **Goal:** clean data, run logistic regression, derive insights, present findings.
 
 ---
-
-### Necessary Deliverables / Submission
-
-- Materials must be in a clearly labeled Jupyter notebook.
-- Materials must be pushed to student's github master branch.
-- Materials must be submitted by the end of Week 5.
-
----
-
-### Dataset
-
-1. We'll be utilizing a dataset derived from live web data: [Indeed.com](https://www.indeed.com)
-
----
-
