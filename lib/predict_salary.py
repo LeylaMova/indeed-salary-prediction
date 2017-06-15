@@ -1,43 +1,46 @@
 #!/Users/Leyla/anaconda/bin/python
 import pandas as pd
-from lib.preprocessing import clean_salary, clean_text, standardize, extract_keywords_into_dummies, is_keyword_in_title_or_summary, map_city, suburban_vs_city
-from sklearn.externals import joblib
+import numpy as np
+import json
+import tflearn
+from sklearn.feature_extraction import stop_words
+from lib.preprocess import preprocess_wo_salary
+
+
+with open('data/vocab.json', 'r') as infile:
+    vocab = json.load(infile)
+        
+with open('data/word2idx.json', 'r') as infile:
+    word2idx = json.load(infile)
+    
+# Load a model
+model.load('model/model.tflearn')
+
+
+def text_to_vector(text):
+        
+    word_vec = np.zeros((1, len(vocab)))
+    for word in text.split():
+        if word in word2idx.keys():
+            word_vec[0][word2idx[word]] += 1
+            
+    return np.array(word_vec)
 
 
 def predict_salary(df):
-    dummy_to_range = {'0':'$24000 to $69673', '1':'$70000 to $160000', '2':'$162500 to $300000'}
-    model = joblib.load('data/model.pkl')
     
-    df['summary'] = df['summary'].apply(clean_text)
-    df['title'] = df['title'].apply(clean_text)
-    df['city'] = df['city'].astype(str)
-    df['title'] = df['title'].apply(standardize)
-    df['summary'] = df['summary'].apply(standardize)
-    df['city'] = df.apply(map_city, axis=1)
+    salary = {'0':'below $66000', '1':'$66000 to $150000', '2':'above $150000'}
     
-    df['city_suburb'] = df['city'].apply(lambda x: 1 if 'Suburb' in x else 0)
-    df = df.join(pd.get_dummies(df['city'].apply(suburban_vs_city)))
-    df = extract_keywords_into_dummies(df, 'title','research','analyst','research analyst',
-                                   'scientist','associate','specialist','phd',
-                                   'technician','fellow','senior','senior research',
-                                   'laboratory','analyst research','research associate',
-                                   'data scientist','engineer','machine learning',
-                                   'senior data','software','lead','data engineer',
-                                   'data science','quantitative','science','director',
-                                   'director data','data science')
-    df = extract_keywords_into_dummies(df, 'summary','analysis','quality','interpret',
-                                   'analyze','collection','management','data collection',
-                                   'environmental','assist','entry','statistical',
-                                   'data analysis','python','analytic','modeling','big',
-                                   'mining','big data')
+    texts = df['text'].values
     
-    X = df.drop(['city','company','summary','title'], axis=1)
-    df['percentile_class'] = model.predict(X)
-    df['salary_range'] = df['percentile_class'].apply(lambda x: dummy_to_range[str(x)] if str(x) in dummy_to_range.keys() else np.nan)
+    test_vectors = np.zeros((len(texts), len(vocab)), dtype=np.int_)
+    for ii, text in enumerate(texts):
+        test_vectors[ii] = text_to_vector(text)
+        
+    df['predicted_salary_class'] = np.argmax(np.array(model.predict(test_vectors)), axis=1)
+    df['predicted_salary_range'] = df['predicted_salary_class'].apply(lambda x: salary[str(x)] if str(x) in salary.keys() else None)
     
-    
-    return df[['city','company','summary','title','salary_range','percentile_class']]
-    
+    return df
     
     
     

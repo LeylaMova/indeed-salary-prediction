@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/leylamovahedi/dsi/dsi-sm/indeed-salary-prediction/model/model.tfl"
+all_model_checkpoint_paths: "/Users/leylamovahedi/dsi/dsi-sm/indeed-salary-prediction/model/model.tfl"

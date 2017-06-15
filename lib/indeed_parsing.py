@@ -1,16 +1,12 @@
 import pandas as pd
 import requests
+import time
+from collections import defaultdict
 from bs4 import BeautifulSoup
+from lib.parsing_helpers import keyword_query, get_title_from_result, get_company_from_result, get_location_from_result, get_summary_from_result, get_salary_from_result
 
 
-
-
-
-url = "http://www.indeed.com/jobs?q=data+scientist+%2420%2C000&l={}&start={}"
-#url = "http://www.indeed.com/jobs?q=data+scientist+%24160000&l={}&start={}"
-
-
-def extract_posts(max_results_per_city, cities=[]):
+def extract_posts_w_salary_to_df(keyword=[], city_set=[], max_results_per_city=int):
     """
        Extracts city, state, company, salary, summary and title from posts on indeed.
        
@@ -18,40 +14,40 @@ def extract_posts(max_results_per_city, cities=[]):
        
            max_results_per_city:  integer 
            cities: list of strings
-       
-       
+             
        Returns a Pandas DataFrame 
     
     """
+    url = keyword_query(keyword)  
     
-    max_results_per_city = max_results_per_city  
-
-    posts = []
-    for city in cities:
-        for start in range(0, max_results_per_city, 10):
-            response = requests.get(url.format(city, start))
-            soup = BeautifulSoup(response.content, "lxml")
-            results = soup.findAll('div', { "class" : "result" })
-            
-            for div in results:
-                if div:
-                    try:
-                        post = {}
-                        post['city'] = div.find('span', {'class' : 'location'}).text.split(',')[0]
-                        post['state'] = div.find('span', {'class' : 'location'}).text.split(',')[1].split()[0]
-                        post['company'] = div.find('span', {'class' : 'company'}).text.strip()
-                        post['salary'] = div.find_all('nobr')[0].text
-                        post['summary'] = div.find('span', {'class' : 'summary'}).text.strip()
-                        post['title'] = div.find('a', {'data-tn-element' : 'jobTitle'}).text.strip()
-                        posts.append(post)
+    job_post = defaultdict(list)
+    for city in city_set:
         
-                    except:
-                        pass
-            
-    return pd.DataFrame.from_records(posts)
+        for start in range(0, max_results_per_city, 10):
+            page = requests.get(url.format(city, start))
+            time.sleep(1)  #ensuring at least 1 second between page grabs
+            soup = BeautifulSoup(page.text, 'html.parser')
+                       
+            for div in soup.find_all(name='div', attrs={'class':'row'}):
+                try:
+                    if get_salary_from_result(div):
+                        job_post['city'].append(city)
+                        job_post['title'].append(get_title_from_result(div))
+                        job_post['company'].append(get_company_from_result(div))
+                        job_post['location'].append(get_location_from_result(div))
+                        job_post['summary'].append(get_summary_from_result(div))
+                        job_post['salary'].append(get_salary_from_result(div))
+                except:
+                    pass
+    
+    df = pd.DataFrame.from_records(job_post)
+    df.drop_duplicates(inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    
+    return df
 
 
-def extract_posts_wo_salary(max_results_per_city, cities=[]):
+def extract_posts_to_df(keyword=[], city_set=[], max_results_per_city=int):
     """
        Extracts city, state, company, summary and title from posts on indeed.
        
@@ -65,32 +61,28 @@ def extract_posts_wo_salary(max_results_per_city, cities=[]):
     
     """
     
-    max_results_per_city = max_results_per_city  
-
-    posts = []
-    for city in cities:
-        for start in range(0, max_results_per_city, 10):
-            response = requests.get(url.format(city, start))
-            soup = BeautifulSoup(response.content, "lxml")
-            results = soup.findAll('div', { "class" : "result" })
-            
-            for div in results:
-                if div:
-                    try:
-                        post = {}
-                        post['city'] = div.find('span', {'class' : 'location'}).text.split(',')[0]
-                        post['state'] = div.find('span', {'class' : 'location'}).text.split(',')[1].split()[0]
-                        post['company'] = div.find('span', {'class' : 'company'}).text.strip()
-                        post['summary'] = div.find('span', {'class' : 'summary'}).text.strip()
-                        post['title'] = div.find('a', {'data-tn-element' : 'jobTitle'}).text.strip()
-                        posts.append(post)
+    url = keyword_query(keyword)  
+    
+    job_post = defaultdict(list)
+    for city in city_set:
         
-                    except:
-                        pass
-            
-    return pd.DataFrame.from_records(posts)
-
-
+        for start in range(0, max_results_per_city, 10):
+            page = requests.get(url.format(city, start))
+            time.sleep(1)  #ensuring at least 1 second between page grabs
+            soup = BeautifulSoup(page.text, 'html.parser')
+                       
+            for div in soup.find_all(name='div', attrs={'class':'row'}):
+                job_post['city'].append(city)
+                job_post['title'].append(get_title_from_result(div))
+                job_post['company'].append(get_company_from_result(div))
+                job_post['location'].append(get_location_from_result(div))
+                job_post['summary'].append(get_summary_from_result(div))
+    
+    df = pd.DataFrame.from_records(job_post)
+    df.drop_duplicates(inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    
+    return df
 
     
     
